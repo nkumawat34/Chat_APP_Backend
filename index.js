@@ -12,9 +12,8 @@ const cors = require('cors');
  
 const jwt = require("jsonwebtoken");
 const User = require("./userModel");
-app.use(cors({
-  origin: 'https://chat-app-frontend-1lqo.onrender.com/'
-}));
+app.use(cors()); // This will allow requests from any origin
+
 
  
 // Handling post request
