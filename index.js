@@ -13,7 +13,7 @@ const cors = require('cors');
 const jwt = require("jsonwebtoken");
 const User = require("./userModel");
 app.use(cors({
-  origin: 'http://localhost:3002'
+  origin: 'https://chat-app-frontend-1lqo.onrender.com/'
 }));
 
  
