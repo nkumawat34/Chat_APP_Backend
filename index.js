@@ -6,16 +6,20 @@ const mongoose=require("mongoose")
 const app = express();
 const server=http.createServer(app) 
 app.use(express.json());
-const io=socketio(server)
+const io = require('socket.io')(server, {
+    cors: {
+        origin: "https://chat-app-frontend-1lqo.onrender.com", // Replace with your client's origin
+        methods: ["GET", "POST"]
+    }
+});
+const secretKey="12351235"
 const PORT=process.env.PORT || 3001;
 const cors = require('cors');
- 
+const bodyParser = require('body-parser');
 const jwt = require("jsonwebtoken");
 const User = require("./userModel");
-app.use(cors({
-  origin: 'http://localhost:3002'
-}));
-
+app.use(cors());
+app.use(bodyParser.json());
  
 // Handling post request
 app.post("/login",
@@ -50,7 +54,7 @@ app.post("/login",
                     userId: existingUser.id,
                     email: existingUser.email
                 },
-                "secretkeyappearshere",
+                secretKey,
                 { expiresIn: "1h" }
             );
         } catch (err) {
@@ -102,7 +106,7 @@ app.post("/signup",
                     userId: newUser.id,
                     email: newUser.email
                 },
-                "secretkeyappearshere",
+                secretKey,
                 { expiresIn: "1h" }
             );
         } catch (err) {
@@ -122,7 +126,7 @@ app.post("/signup",
             });
     });
  
-//Connecting to the database
+//Connecting tok the database
 mongoose
     .connect("mongodb+srv://nkumawat34:nkumawat34@cluster0.6msxxm4.mongodb.net/chat_app")
     .then(() => {
@@ -136,7 +140,26 @@ mongoose
             console.log("Error Occurred");
         }
     );
+   
+  
+
 io.on('connection',(socket)=>{
+    const token = socket.handshake.auth.token;
+   
+    if (!token) {
+        console.error('Authentication error: Token not provided');
+        socket.disconnect(true);
+        return;
+    }
+
+    jwt.verify(token, secretKey, (err, decoded) => {
+        if (err) {
+            console.error('Authentication error:', err.message);
+            socket.disconnect(true);
+            return ;
+           
+        }
+    })
     console.log("We have a new connection");
 
     socket.on('join',({name,room})=>{
@@ -144,12 +167,11 @@ io.on('connection',(socket)=>{
         console.log(name,room)
     })
     socket.on("message",({message,room})=>{
-      console.log(room)
-        io.to(room).emit("received-message",message)
-      
+        console.log(message)
+        socket.to(room).emit("received-message",message)
     })
     socket.on("join-room",(room)=>{
-        console.log(room)
+        console.log("Hi")
         socket.join(room)
     })
     socket.on("disconnect",()=>{
