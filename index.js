@@ -8,7 +8,7 @@ const server=http.createServer(app)
 app.use(express.json());
 const io = require('socket.io')(server, {
     cors: {
-        origin: "https://chat-app-frontend-1lqo.onrender.com", // Replace with your client's origin
+        origin: "https://chat-app-frontend-1lqo.onrender.com",
         methods: ["GET", "POST"]
     }
 });
