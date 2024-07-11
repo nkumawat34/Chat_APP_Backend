@@ -168,7 +168,7 @@ io.on('connection',(socket)=>{
     })
     socket.on("message",({message,room})=>{
         console.log(message)
-        socket.to(room).emit("received-message",message)
+        io.to(room).emit("received-message",message)
     })
     socket.on("join-room",(room)=>{
         console.log("Hi")
